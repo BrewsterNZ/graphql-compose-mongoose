@@ -1,0 +1,1 @@
+make sure to run yarn build-lib before comitting, as the lib dir needs to be downloaded as the npm package isn't built on the client
