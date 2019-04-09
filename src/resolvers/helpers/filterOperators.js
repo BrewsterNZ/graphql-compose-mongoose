@@ -8,8 +8,8 @@ import type { ExtendedResolveParams } from '../index';
 import { upperFirst, getIndexedFieldNamesForGraphQL, toMongoDottedObject } from '../../utils';
 import type { FilterHelperArgsOpts } from './filter';
 
-export type FilterOperatorNames = 'gt' | 'gte' | 'lt' | 'lte' | 'ne' | 'in[]' | 'nin[]';
-const availableOperators: FilterOperatorNames[] = ['gt', 'gte', 'lt', 'lte', 'ne', 'in[]', 'nin[]'];
+export type FilterOperatorNames = 'gt' | 'gte' | 'lt' | 'lte' | 'ne' | 'in[]' | 'nin[]' | 'range[]';
+const availableOperators: FilterOperatorNames[] = ['gt', 'gte', 'lt', 'lte', 'ne', 'in[]', 'nin[]', 'range[]'];
 
 export const OPERATORS_FIELDNAME = '_operators';
 
@@ -46,7 +46,12 @@ export function processFilterOperators(filter: Object, resolveParams: ExtendedRe
       const fieldOperators = { ...operatorFields[fieldName] };
       const criteria = {};
       Object.keys(fieldOperators).forEach(operatorName => {
-        criteria[`$${operatorName}`] = fieldOperators[operatorName];
+        if (operatorName == 'range') {
+          criteria.$gt = fieldOperators[operatorName][0];
+          criteria.$lte = fieldOperators[operatorName][1];
+        } else {
+          criteria[`$${operatorName}`] = fieldOperators[operatorName];
+        }
       });
       if (Object.keys(criteria).length > 0) {
         // eslint-disable-next-line
